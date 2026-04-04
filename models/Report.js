@@ -19,6 +19,7 @@ const MetricsSchema = new mongoose.Schema(
 const AiPredictionSchema = new mongoose.Schema(
     {
         predicted_hba1c: Number,
+        triage_level: String,
         risk_level: String,
     },
     { _id: false },

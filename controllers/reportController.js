@@ -1,6 +1,7 @@
 const Patient = require('../models/Patient');
 const Report = require('../models/Report');
 const { getAiPrediction } = require('../services/aiService');
+const { generateClinicalNarrative } = require('../services/groqService');
 const { generateNextMedId } = require('../utils/generateMedId');
 
 const ALLOWED_HOSPITALS = ['A', 'B', 'C', 'D', 'E'];
@@ -71,6 +72,7 @@ async function persistReportWithAi({ medId, hospitalId, metrics, collectedDate =
     const aiRaw = await getAiPrediction(eight);
     const aiPrediction = {
         predicted_hba1c: aiRaw.predicted_hba1c,
+        triage_level: aiRaw.triage_level,
         risk_level: aiRaw.risk_level,
     };
     report.aiPrediction = aiPrediction;
@@ -188,16 +190,16 @@ exports.getPatientAnalysis = async (req, res) => {
         const previous = reports.length > 1 ? reports[reports.length - 2] : current;
 
         let aiResult;
-        if (current.aiPrediction?.risk_level != null && current.aiPrediction?.predicted_hba1c != null) {
+        if (current.aiPrediction?.triage_level != null && current.aiPrediction?.predicted_hba1c != null) {
             aiResult = {
                 predicted_hba1c: current.aiPrediction.predicted_hba1c,
-                risk_level: current.aiPrediction.risk_level,
+                triage_level: current.aiPrediction.triage_level,
             };
         } else {
             const live = await getAiPrediction(metricsEight(current.metrics));
             aiResult = {
                 predicted_hba1c: live.predicted_hba1c,
-                risk_level: live.risk_level,
+                triage_level: live.triage_level,
             };
         }
 
@@ -229,15 +231,43 @@ exports.getPatientAnalysis = async (req, res) => {
             joinedDate: patient.joinedDate,
         };
 
+        const trend = Number(current.metrics.hba1c) < Number(previous.metrics.hba1c)
+            ? 'Improving'
+            : Number(current.metrics.hba1c) > Number(previous.metrics.hba1c)
+                ? 'Worsening'
+                : 'Stable';
+
+        const visitIntervalDays = previous.collectedDate && current.collectedDate
+            ? Math.max(
+                0,
+                Math.round(
+                    (new Date(current.collectedDate) - new Date(previous.collectedDate)) /
+                        (1000 * 60 * 60 * 24),
+                ),
+            )
+            : null;
+
+        let aiNarrative = null;
+        try {
+            aiNarrative = await generateClinicalNarrative({
+                currentMetrics: current.metrics,
+                previousMetrics: previous === current ? null : previous.metrics,
+                aiPrediction: aiResult,
+                trend,
+                isUrgent: aiResult.triage_level === 'Urgent',
+                visitIntervalDays,
+            });
+        } catch (err) {
+            console.error('Groq clinical narrative failed:', err);
+        }
+
         res.json({
             patient: patientOut,
             reportCount: reports.length,
             aiPrediction: aiResult,
+            aiNarrative,
             trends: {
-                status:
-                    Number(current.metrics.hba1c) < Number(previous.metrics.hba1c)
-                        ? 'Improving'
-                        : 'Stable',
+                status: trend,
                 glucoseDiff:
                     (Number(current.metrics.glucose) || 0) -
                     (Number(previous.metrics.glucose) || 0),

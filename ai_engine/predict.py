@@ -104,13 +104,20 @@ def predict():
         # NN head is not calibrated to % HbA1c; map to a modest span so it contributes without dominating.
         nn_hba1c = 4.0 + max(0.0, min(1.0, raw)) * 4.5
         clinical_hba1c = metabolic_clinical_hba1c(data)
-        # Worst-case drives display so obvious metabolic patterns are not labeled Normal.
+        # Worst-case drives display so obvious metabolic patterns are not labeled Routine.
         combined = max(nn_hba1c, clinical_hba1c)
         clamped_prediction = min(15.0, max(4.0, combined))
 
+        if clamped_prediction >= 9.0:
+            triage_level = "Urgent"
+        elif clamped_prediction >= 7.0:
+            triage_level = "Priority"
+        else:
+            triage_level = "Routine"
+
         out = {
             "predicted_hba1c": round(clamped_prediction, 2),
-            "risk_level": "High" if clamped_prediction > 7.0 else "Normal",
+            "triage_level": triage_level,
         }
         print(json.dumps(out), flush=True)
 
