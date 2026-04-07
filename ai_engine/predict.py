@@ -71,7 +71,10 @@ def predict():
     try:
         # 1. Parse Input from Node.js
         data = json.loads(sys.argv[1])
-        
+        weights_path = None
+        if len(sys.argv) > 2:
+            weights_path = sys.argv[2]
+
         # 2. CALIBRATION LAYER (Pillar 1)
         # We use clinical ranges derived from your Hospital Master Records
         features = [
@@ -87,8 +90,11 @@ def predict():
 
         # 3. Load the Federated Global Model
         model = HealthModel()
-        weights_path = os.path.join(os.path.dirname(__file__), "Global_Model.pth")
-        model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu')))
+        if weights_path and os.path.exists(weights_path):
+            selected_weights = weights_path
+        else:
+            selected_weights = os.path.join(os.path.dirname(__file__), "Global_Model.pth")
+        model.load_state_dict(torch.load(selected_weights, map_location=torch.device('cpu')))
         model.eval()
 
         # 4. Inference
@@ -115,9 +121,18 @@ def predict():
         else:
             triage_level = "Routine"
 
+        model_source = "Global model"
+        if weights_path and os.path.exists(weights_path):
+            filename = os.path.basename(weights_path)
+            if filename.startswith("weights_") and len(filename) > 8:
+                model_source = f"Hospital {filename[8]}"
+            elif filename == "Global_Model.pth":
+                model_source = "Global model"
+
         out = {
             "predicted_hba1c": round(clamped_prediction, 2),
             "triage_level": triage_level,
+            "model_source": model_source,
         }
         print(json.dumps(out), flush=True)
 

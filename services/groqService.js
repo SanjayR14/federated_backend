@@ -1,8 +1,8 @@
 const https = require('https');
 
-// const GROQ_API_KEY = process.env.GROQ_API_KEY;
-// const GROQ_API_URL = process.env.GROQ_API_URL || 'https://api.groq.com/openai/v1';
-// const GROQ_MODEL = process.env.GROQ_MODEL || 'groq-1';
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_API_URL = process.env.GROQ_API_URL || 'https://api.groq.com/openai/v1';
+const GROQ_MODEL = process.env.GROQ_MODEL || 'groq-1';
 
 function requestJson(url, body, headers = {}) {
     return new Promise((resolve, reject) => {

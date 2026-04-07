@@ -69,11 +69,12 @@ async function persistReportWithAi({ medId, hospitalId, metrics, collectedDate =
         }
     }
 
-    const aiRaw = await getAiPrediction(eight);
+    const aiRaw = await getAiPrediction(eight, hospitalId);
     const aiPrediction = {
         predicted_hba1c: aiRaw.predicted_hba1c,
         triage_level: aiRaw.triage_level,
         risk_level: aiRaw.risk_level,
+        modelSource: aiRaw.model_source || `Hospital ${hospitalId}`,
     };
     report.aiPrediction = aiPrediction;
     report.aiRiskScore = aiPrediction.predicted_hba1c;
@@ -189,17 +190,23 @@ exports.getPatientAnalysis = async (req, res) => {
         const current = reports[reports.length - 1];
         const previous = reports.length > 1 ? reports[reports.length - 2] : current;
 
+        const metrics = metricsEight(current.metrics);
         let aiResult;
+
         if (current.aiPrediction?.triage_level != null && current.aiPrediction?.predicted_hba1c != null) {
             aiResult = {
                 predicted_hba1c: current.aiPrediction.predicted_hba1c,
                 triage_level: current.aiPrediction.triage_level,
+                risk_level: current.aiPrediction.risk_level,
+                modelSource: current.aiPrediction.modelSource || 'Global model',
             };
         } else {
-            const live = await getAiPrediction(metricsEight(current.metrics));
+            const live = await getAiPrediction(metrics);
             aiResult = {
                 predicted_hba1c: live.predicted_hba1c,
                 triage_level: live.triage_level,
+                risk_level: live.risk_level,
+                modelSource: live.model_source || 'Global model',
             };
         }
 
