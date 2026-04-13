@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fed-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fed-backend
+  template:
+    metadata:
+      labels:
+        app: fed-backend
+    spec:
+      containers:
+      - name: fed-backend
+        image: sanjuhu/fed-checkup-backend:latest
+        ports:
+        - containerPort: 5000
