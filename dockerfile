@@ -1,9 +1,10 @@
-FROM python:3.9-slim
+FROM node:18
 
 WORKDIR /app
 
+COPY package*.json ./
+RUN npm install
+
 COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-CMD ["python", "app.py"]
+CMD ["node", "server.js"]
