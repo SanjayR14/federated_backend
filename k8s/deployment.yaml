@@ -16,7 +16,7 @@ spec:
 
       containers:
       - name: fed-backend
-        image: sanjuhu/fed-checkup-backend:46
+        image: sanjuhu/fed-checkup-backend:47
 
         ports:
         - containerPort: 5000
