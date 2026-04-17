@@ -12,19 +12,21 @@ spec:
       labels:
         app: fed-backend
     spec:
-      automountServiceAccountToken: false   
+      automountServiceAccountToken: false
 
       containers:
       - name: fed-backend
-        image: sanjuhu/fed-checkup-backend:v1  
+        image: sanjuhu/fed-checkup-backend:v1
 
         ports:
         - containerPort: 5000
 
-        resources:  
+        resources:
           requests:
             memory: "128Mi"
             cpu: "250m"
+            ephemeral-storage: "500Mi"   
           limits:
             memory: "256Mi"
             cpu: "500m"
+            ephemeral-storage: "1Gi"   
