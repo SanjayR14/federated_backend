@@ -16,7 +16,7 @@ spec:
 
       containers:
       - name: fed-backend
-        image: image: sanjuhu/fed-checkup-backend:v1
+        image: sanjuhu/fed-checkup-backend:v1
 
         ports:
         - containerPort: 5000
@@ -29,4 +29,4 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "500m"
-            ephemeral-storage: "1Gi"   
+            ephemeral-storage: "1Gi"    
