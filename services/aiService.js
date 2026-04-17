@@ -26,6 +26,7 @@ const getAiPrediction = (metrics) => {
             windowsHide: true,
         });
 
+        
         let result = '';
         let errBuf = '';
         pythonProcess.stdout.on('data', (data) => {
