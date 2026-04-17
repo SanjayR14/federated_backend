@@ -2,5 +2,5 @@ projectKey=fed-backend
 serverUrl=http://host.docker.internal:9000
 serverVersion=26.4.0.121862
 dashboardUrl=http://host.docker.internal:9000/dashboard?id=fed-backend
-ceTaskId=c3da7c90-3fc9-4835-9fe9-563413a9410c
-ceTaskUrl=http://host.docker.internal:9000/api/ce/task?id=c3da7c90-3fc9-4835-9fe9-563413a9410c
+ceTaskId=62aea7b7-b72f-4953-a0f8-b3a9681cd2eb
+ceTaskUrl=http://host.docker.internal:9000/api/ce/task?id=62aea7b7-b72f-4953-a0f8-b3a9681cd2eb
