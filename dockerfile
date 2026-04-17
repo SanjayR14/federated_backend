@@ -7,4 +7,10 @@ RUN npm install
 
 COPY . .
 
+RUN useradd -m appuser
+
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
 CMD ["node", "server.js"]
