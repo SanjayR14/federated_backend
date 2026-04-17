@@ -13,6 +13,7 @@ async function generateNextMedId() {
             ? maxN + 1
             : 100001;
     return String(base);
+    
 }
 
 module.exports = { generateNextMedId };
