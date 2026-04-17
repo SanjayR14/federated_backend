@@ -8,6 +8,7 @@ function escapeRegex(s) {
 
 const ALLOWED_HOSPITALS = ['A', 'B', 'C', 'D', 'E'];
 
+
 exports.searchPatients = async (req, res) => {
     try {
         const hospitalId = req.params.hospitalId ?? req.query.hospitalId;
