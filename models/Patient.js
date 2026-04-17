@@ -12,6 +12,7 @@ const PatientSchema = new mongoose.Schema(
     { toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );
 
+
 /** One patient → many reports (by reference on Report.patient). */
 PatientSchema.virtual('reports', {
     ref: 'Report',
